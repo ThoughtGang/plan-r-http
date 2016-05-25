@@ -1,0 +1,38 @@
+%p
+  %b #{t.repo.label}
+  - if @repo
+    #{@repo.name} [#{@repo.base_path}]
+  - else
+    = t.repo.not_open
+    %a(href='/app/open')
+      = t.app.open
+    %br
+    %a(href='/app/create')
+      = t.app.create
+
+
+%p.center
+  %i
+    FIXME: These will all be part of menu-bar and such
+%ul
+  %li
+    %a(href='/repo/browse/all/')
+      = t.app.browse
+  %li
+    %a(href='/app/import_url')
+      = t.app.import_url.name
+  %li
+    %a(href='/app/add_note')
+      = t.app.add_note.name
+  %li
+    %a(href='/app/search')
+      = t.app.search.name
+  %li
+    %a(href='/app/plugins')
+      = t.app.plugins
+  %li
+    %a(href='/app/desktop-file')
+      = t.app.desktop_file
+  %li
+    %a(href='/app/quit')
+      = t.app.quit

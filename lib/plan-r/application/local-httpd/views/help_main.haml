@@ -1,0 +1,19 @@
+%h2 Help
+
+%i TODO
+
+%ul
+  %li Manual
+  %li FAQ
+  %li Framework Documentation
+  %li Writing plugins
+  %li Support
+  %li Github page
+
+%p
+%i notes
+%ul
+  %li repo-table (above doc-viewer tabs) shows current directory, as selected in repo-tree. this is actually a list of children of the selected tree item, so if the item has no children (i.e. is a document) then this will be empty
+  %li repo buttons (above repo table) act on the repo-table selection, NOT the repo-tree selection
+  %li the repo-tree supports drag-and-drop (move/copy if Ctrl is pressed), in-place edit (double-click of single item), set-current-item (single click on single item), and has a context menu. it is basically a self-contained widget: all other widgets (repo-tablle, doc-info, doc-viewers) are based on what is selected in repo-table.
+  %li hold shift or ctrl down when selecting in repo tree to NOT change current doc

@@ -1,0 +1,55 @@
+= include_css('jstree.theme.default.min.css')
+
+#file-select
+  %b Choose repo location:
+  .fs-tree
+    %p
+      .root-name
+        = @repo_root
+    #open-fs-tree-widget
+  .empty-div
+
+  %center
+    %form#file-select-form{:action=>"/app/create",:method=>"post"}
+      .text-label
+        #{t.app.create_repo.location}
+      %input#repo-loc-input{:type=>"text", :name=>"repo_loc", :value=>"#{@repo_root}"}
+      %br
+      .text-label
+        #{t.app.create_repo.filename}
+      %input#repo-dir-input{:type=>"text", :name=>"repo_dir"}
+      %br
+      .text-label
+        #{t.app.create_repo.name}
+      %input#repo-name-input{:type=>"text", :name=>"name"}
+      %br
+      .text-label
+        #{t.app.create_repo.descr}
+      %input#repo-descr-input{:type=>"text", :name=>"descr"}
+      %br
+      %input#repo-vc-input{:type=>"checkbox", :checked => true, :name => 'version_control'}
+        #{t.app.create_repo.use_vc}
+      %br
+      %input{:type=>"submit", :value=>"Select"}
+
+= include_js('jstree.min.js')
+:javascript
+  $(function(){ 
+    var fs_tree = $('#open-fs-tree-widget').jstree({
+      core: {
+        data : {
+          url: '/api/fs/tree',
+          multiple: false,
+          data: function(node) { return { id: node.id }; }
+        }
+      },
+      plugins: [ 'sort', 'wholerow' ],
+      themes: {
+        stripe: true,
+        dots: true,
+        responsive: true
+      }
+    }).on('activate_node.jstree', function (event, data) {
+      $('#repo-loc-input').val(data.node.id);
+    });
+  });

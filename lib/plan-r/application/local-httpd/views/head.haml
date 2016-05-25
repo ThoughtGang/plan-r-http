@@ -1,0 +1,17 @@
+!!!                                                                             
+-# HTML header
+
+%meta{ 'http-equiv' => 'Content-Type',
+       :content => 'text/html; charset=utf-8' }
+%meta{ :name => 'application', :value => 'PlanR_WebApp' }
+
+%title #{page_title(@page_title)}
+
+-# JS  ------------------------------------------------------------------
+= include_js('jquery.min.js')
+= include_js('jquery-ui.min.js')
+
+-# CSS ------------------------------------------------------------------
+= include_css('layout.css')
+= include_css('jquery-ui.min.css')
+= include_css('theme/jquery-ui.theme.min.css')

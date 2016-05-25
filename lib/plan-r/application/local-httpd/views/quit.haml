@@ -1,0 +1,6 @@
+Quit PlanR Webapp and close server?
+
+%form{:action => '/app/quit', :method => 'post'}
+  %input{:type => 'submit', :value => 'Yes'}
+%a{:href => '/root'}
+  = t.cancel

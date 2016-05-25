@@ -1,0 +1,138 @@
+ok: OK
+cancel: Cancel
+yes: Yes
+no: No
+plan_r: Plan R
+optional: optional
+required: required
+name: Name
+value: Value
+any: any
+all: all
+
+app:
+  browse: Browse Repository
+  open: Open a Repository
+  open_title: Open Repo
+  create: Create a Repository
+  create_title: Create Repo
+  search_results: Search Results
+  search_results_title: Search Results
+  plugins: Plugin Manager
+  plugins_title: Plugins
+  desktop_file: Download a .desktop file for this port# and repo
+  quit: Quit
+  quit_title: Exit Plan R Application
+  create_repo:
+    location: Location to create Repo in
+    filename: Filename for Repo
+    name: Name
+    descr: Description
+    use_vc: Use version control
+  import_url:
+    name: Import URL to Repo
+    title: URL Importer
+    document_uri: Document URI
+    document_uri_tip: Document URI
+    dest_folder: Destination Folder
+    dest_folder_tip: Destination Folder
+    dest_name: Imported Name
+    dest_name_tip: Imported Name
+    comment: Comments
+    comment_tip: Comments
+    index: Add Document to search index
+    index_tip: Add Document to search index
+    orphan: Static Document
+    orphan_tip: Remove reference to Document origin
+    sync: Synchronization Options
+    sync_auto: Update Document on Repository update
+    sync_auto_tip: Update Document on Repository update
+    sync_access: Update Document on access
+    sync_access_tip: Update Document on access
+    sync_start: Update Document on application startup
+    sync_start_tip: Update Document on application startup
+    sync_manual: Do not automatically update Document
+    sync_manual_tip: Do not automatically update Document
+    append: Append Document contents on update
+    append_tip: Append Document contents on update
+    note: Attach Note to imported Document
+    note_tip: Attach Note to imported Document
+    cache: Store Document contents in repo
+    cache_tip: Store Document contents in repo
+    submit: Import Document
+    flash_confirm: Document imported at %1
+  add_note:
+    name: Create Note in Repo
+    title: Note Creator
+    contents: Note Contents
+    contents_tip: Note Contents
+    folder: Folder containing Note
+    folder_tip: Folder containing Note
+    name: Name of Note
+    name_tip: Name of Note
+    index: Add Note to search index
+    index_tip: Add Note to search index
+    submit: Create Note
+  search:
+    name: Search Repository
+    title: Search Repo
+    index_docs: docs
+    index_docs_title: Documents in Search Index
+    index_log: log
+    index_log_title: Search Index Log
+    index_report: report
+    index_report_title: Search Index Report
+    index_stats: stats
+    index_stats_title: Search Index Statsitics
+    index_keywords: keywords
+    index_keywords_title: Keywords in Search Index
+    submit: Search
+
+repo:
+  label: Repo
+  title: Repository
+  not_open: No repository has been opened.
+  doc_info: Document Info
+  properties: Properties
+  tags: Tags
+  doc_title: Title
+  doc_type: Type
+  button:
+    new_doc: New Document
+    new_note: New Note
+    new_table: New Table
+    new_dict: New Dict
+    new_query: New Stored Query
+    new_script: New Script 
+    new_folder: New Folder 
+    download: Download selected items
+    duplicate: Duplicate selected items
+    delete: Delete selected items
+    settings: Settings
+    help:  Help
+    search: Search repo
+  new_node:
+    dialog_title: 'Create Repo Item:' 
+    loc_label: Location
+    loc_tip: Repo folder to create item in (/ for top-level).
+    title_label: Title
+    title_tip: Title property for repo item
+    name_label: Name
+    name_tip: Name of node (filename) for repo item
+    content_label: Contents
+    content_tip: Plaintext contents of Document or Note
+    optional_note: Only one of Title or Name need be provided.
+    create_label: Create
+    create_tip: Create new item in repo and open for editing
+    cancel_label: Cancel
+
+doc:
+  folder: Folder
+  document: Document
+  dict: Data Dict
+  table: Data Table
+  script: Script
+  query: Stored Query
+  note: Note
+  resource: Resource
+  copy_of: Copy of

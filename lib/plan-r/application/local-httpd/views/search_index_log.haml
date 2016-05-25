@@ -1,0 +1,8 @@
+%h1
+  = t.app.search.index_log_title
+.search-index-info
+  - @results.each do |name, results|
+    %h2.plugin-name #{name}
+    %pre.search-index-log
+      -# FIXME: format results
+      #{results.inspect}

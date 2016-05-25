@@ -1,0 +1,23 @@
+%h2
+  = t.app.add_note.name
+
+%form{:action=>"/app/add_note",:method=>"post"}
+  %p
+    %b #{t.app.add_note.contents}
+    %textarea{:name=>"contents", :rows => 26, :cols => 80, :wrap => 'soft'}
+  %p
+    %b #{t.app.add_note.folder}
+    -# FIXME: default location/recent locations dropdown?
+    %input{:type=>"text",:name=>"folder"}
+    %b #{t.app.add_note.name}
+    -# FIXME: default location/recent locations dropdown?
+    %input{:type=>"text",:name=>"name"}
+
+  %p
+    %input{:type=>'checkbox', :name=>'index', :value => 1, :checked => true }
+    %i #{t.app.add_note.index}
+    %i Add document to search index
+
+  %p
+    %input{:type=>"submit",:value=>"#{t.app.add_note.submit}"}
+

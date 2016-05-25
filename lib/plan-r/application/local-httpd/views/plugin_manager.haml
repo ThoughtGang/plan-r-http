@@ -1,0 +1,3 @@
+- plugin_mgr.plugins.values.sort { |a,b| a.name <=> b.name }.each do |p|
+  %p
+    = p.name

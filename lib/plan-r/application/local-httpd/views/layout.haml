@@ -1,0 +1,16 @@
+!!!                                                                             
+-# This defines the page layout for the webapp
+
+%html
+  %head
+    = partial(:head)
+  %body
+    #app
+      -# header, including logo and menu bar
+      = partial(:header)
+      -# page-specific content
+      #content
+        =yield
+
+      -# copyright notices and such
+      = partial(:footer)

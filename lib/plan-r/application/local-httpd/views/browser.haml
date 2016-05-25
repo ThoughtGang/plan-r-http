@@ -1,0 +1,530 @@
+
+= include_css('jstree.theme.default.min.css')
+= include_css('jquery.dataTables.min.css')
+= include_css('dataTables.jqueryui.min.css')
+= include_css('select.dataTables.min.css')
+= include_css('responsive.dataTables.min.css')
+= include_css('autoFill.dataTables.min.css')
+= include_css('jquery.tagit.css')
+
+
+-# ----------------------------------------------------------------------
+-# CSS class repo-header: current path, search
+.repo-header
+  .left
+    .doc-type
+      = doc_type_str @current_doc
+    .current-path.text-fixed
+      = @current_repo_path
+  .center
+    .button-box#repo_doc_types
+      .repo-button#repo_new_doc_btn
+      .repo-button#repo_new_note_btn
+      .repo-button#repo_new_table_btn
+      .repo-button#repo_new_dict_btn
+      .repo-button#repo_new_query_btn
+      .repo-button#repo_new_script_btn
+      .repo-button#repo_new_folder_btn
+    .button-box#repo_doc_actions
+      .repo-button#repo_doc_download_btn
+      .repo-button#repo_doc_dup_btn
+      .repo-button#repo_doc_del_btn
+    .button-box#app_services
+      .repo-button#app_settings_btn
+      .repo-button#app_help_btn
+  .right
+    .search-box
+      %form#repo-search-form{:action=>"/app/search/results", :method=>'post'}
+        %select.search-select{:name => 'search_engine'}
+          -# FIXME: icon
+          %option{ :value => 'all' }
+            #{t.all}
+          - plugin_mgr.providing(:query_index).each do |p,r|
+            - key = plugin_name_to_key(p.name)
+            %option{ :value => key }
+              #{key}
+        %input.search-edit{:type => 'text', :name => 'query'}
+        .search-button Q
+
+-# -----------------------------------------------------------------------
+-# Force next two items to be at same height
+.empty-div
+
+.repo-content
+  -# ----------------------------------------------------------------------
+  -# CSS class 'repo-tree' this should be float:left; width:20%
+  #content-sidebar-left
+    .repo-tree
+      %p
+        %a{:href => '/repo/browse/all/'}
+          .repo-name
+            = @repo.name
+
+      #browser-repo-tree-widget
+
+    .empty-div
+    -# ----------------------------------------------------------------------
+    -# doc-info is a widget displaying the key:data elements of the object 
+    -# properties, as well as the tags.
+    .doc-info
+      .title
+        %b #{t.repo.doc_info}
+      .path
+        #browser-doc-info-path
+          = File.basename @current_repo_path
+        #browser-doc-info-type
+          = (@current_doc ? @current_doc.node_type.to_s : '')
+
+      .doc-properties
+        .title
+          %b #{t.repo.properties}
+        %table#browser-doc-properties-widget.row-border.compact.hover
+          %thead
+            %tr
+              %th #{t.name}
+              %th #{t.value}
+              %th 'Type'
+
+      .doc-tags
+        .title
+          %b #{t.repo.tags}
+        %ul#browser-doc-tags-widget
+          -# @current_tags.each do |tag|
+            %li tag
+            -# FIXME: tag links to tag-search
+
+      .doc-related
+      -# FIXME: related documents search
+
+  #content-main
+    -# repo-dir is a widget for browsing the contents of current repo directory.
+    -# This should be a scrollable table, coverflow, or icon grid (user-sel?)
+    .repo-dir
+      %table#browser-repo-table-widget.stripe.hover.compat.row-border.nowrap
+        %thead
+          %tr
+            %th Ctype
+            %th Path
+            %th #{t.repo.doc_title}
+            %th #{t.repo.doc_type}
+        - doc_mgr.lookup(@repo, @current_repo_path, false, true, true).each do |ctype,path|
+          -doc = doc_mgr.doc_factory(@repo, path, ctype)
+          %tr 
+            -# NOTE: update columnDefs in JS dataTables() when changing columns
+            %td
+            %td.text-fixed #{ctype.to_s}
+            %td.text-fixed #{doc ? doc.path : path}
+            - title = doc ? doc.title : ''
+            - title = File.basename(path) if ((! title) or (title.empty?))
+            %td.dt-body-left.text-fixed #{title}
+            %td.dt-body-left.text-fixed #{t.doc[ctype.to_s]}
+     
+    -# -----------------------------------------------------------------------
+    -# Force next two items to be at same height
+    -#.empty-div
+
+
+    -# ----------------------------------------------------------------------
+    -# doc-viewer displays the contents of the document. Editing should be 
+    -# allowed depending on the document type (e.g. PDFs can have highlighting
+    -# or annotation).
+    .doc-viewer
+      #browser-doc-viewer-title.title
+        = @current_doc ? @current_doc.title : ''
+
+      #browser-doc-viewer.ui-tabs.ui-widget.ui-widget-content.ui-corner-all
+        %ul.ui-tabs-nav.ui-widget-header.ui-corner-all
+          -# obtain code for all viewers
+          - tab_id = 1
+          - @viewers = [ ]
+          -# These are all converted to JS variables for tab management
+          - @viewer_index = { }
+          - @viewer_nodetype = { }
+          - @viewer_mimetype = { }
+          - @viewer_load_fn = {}
+          - doc_viewers.each do |p|
+            - viewer_id = "browser-doc-viewer-#{tab_id}"
+            - h = p.spec_invoke(:js_doc_viewer, '#' + viewer_id, {})
+            - h[:tab_ident] = viewer_id
+            - @viewers << h
+            - @viewer_index[viewer_id] = tab_id
+            - @viewer_nodetype[viewer_id] = h[:node_types].map { |t| t.to_s }
+            - @viewer_mimetype[viewer_id] = h[:mime_types]
+            - @viewer_load_fn[viewer_id] = h[:load_doc]
+            - tab_id += 1
+
+            -# create LI for tab 
+            %li
+              %a.ui-tabs-anchor{ :href => '#'+viewer_id } 
+                #{h[:name]}
+        -# create DIV for viewer -- must be outside the UL tag
+        - @viewers.each do |h|
+          .div.ui-tabs-panel.content-viewer{ :id => h[:tab_ident] }
+
+-# ----------------------------------------------------------------------
+-# dialog boxes
+
+#new-node-dialog
+  %input#new-node-type{ :type => 'hidden', :value => 'document' }
+  .text-label#new-node-loc-label
+    #{t.repo.new_node.loc_label} :
+  %input#new-node-loc-entry{ :type => 'text', :title => "#{t.repo.new_node.loc_tip}", :value => "#{@current_repo_path}" }
+  %br
+
+  .text-label#new-node-name-label
+    #{t.repo.new_node.name_label} :
+  %input#new-node-name-entry{ :type => 'text', :title => "#{t.repo.new_node.name_tip}", :autofocus => true }
+  %br
+
+  .text-label#new-node-title-label
+    #{t.repo.new_node.title_label} :
+  %input#new-node-title-entry{ :type => 'text', :title => "#{t.repo.new_node.title_tip}" }
+  %br
+
+  .text-label#new-node-content-label
+    #{t.repo.new_node.content_label} :
+  %textarea#new-node-content-entry{ :title => "#{t.repo.new_node.content_tip}", :rows => 20, :cols => 40, :wrap => 'soft' }
+  %br
+
+  .text-optional #{t.repo.new_node.optional_note}
+
+  .button#new-node-create-btn{ :title => "#{t.repo.new_node.create_tip}" }
+  .button#new-node-cancel-btn
+
+#confirm-dialog
+  .text-label#confirm-dialog-label
+  %br
+  .button#confirm-dialog-confirm-btn
+  .button#confirm-dialog-cancel-btn
+
+#input-prompt-dialog
+  .text-label#input-prompt-label
+    Input :
+  %input#input-prompt-entry{ :type => 'text' }
+  %br
+  .button#input-prompt-ok-btn
+  .button#input-prompt-cancel-btn
+ 
+#message-dialog
+  .text-label#message-dialog-label
+    Warning
+  %br
+  .button#message-dialog-ok-btn
+
+-# ----------------------------------------------------------------------
+-# load CSS for viewers -- hope this works
+- @viewers.each do |h|
+  - h[:css].each do |css_path|
+    %link{:rel=>'stylesheet', :href=>css_path}
+
+-# ----------------------------------------------------------------------
+= include_js('jstree.min.js')
+= include_js('jquery.jeditable.min.js')
+= include_js('tag-it.min.js')
+= include_js('jquery.dataTables.min.js')
+= include_js('dataTables.select.min.js')
+= include_js('dataTables.responsive.min.js')
+= include_js('dataTables.autofill.min.js')
+= include_js('dataTables.jqueryui.min.js')
+= include_js('jquery.ui-contextmenu.min.js')
+= include_js('jquery.dataTables.dict-editor.js')
+-# load javascript files for document viewers
+- @viewers.each do |h|
+  - h[:js].each do |js_path|
+    %script{:type=>'text/javascript', :src=>js_path}
+= include_js('planr.repo.browser.js')
+
+:javascript
+  $(function(){
+    /* viewer requirements: enable/disable by node, mime-type */
+    viewer_index = #{@viewer_index.to_json};
+    viewer_nodetype = #{@viewer_nodetype.to_json};
+    viewer_mimetype = #{@viewer_mimetype.to_json};
+    viewer_idents = #{@viewer_load_fn.keys.to_json};
+    viewer_cb = { 
+      #{@viewer_load_fn.map { |k,v| "'%s': %s" % [k,v] }.join(',')}
+    };
+
+    $.fn.planrRepoCurrentPath = function() { return "#{@current_repo_path}"; };
+
+    /* ---------------------------------------------------------------------- */
+    // FIXME: move these into JS file, and set vars to contain translation
+    /* dialogs */
+    /* new-node */
+    $('#new-node-dialog').dialog({
+      autoOpen: false,
+      dialogClass: 'new-node',
+      draggable: true,
+      height: 'auto',
+      minWidth: 300,
+      width: 600,
+      modal: true,
+      resizable: true,
+      title: 'New Node',
+      buttons: [ 
+        { text: "#{t.repo.new_node.cancel_label}", click: function() { 
+          $(this).dialog('close'); 
+        }, icons: { primary: 'ui-icon-cancel' } },
+        { text: "#{t.repo.new_node.create_label}", click: function() {
+          var ctype = $('#new-node-type').val();
+          var loc = $('#new-node-loc-entry').val();
+          var name = $('#new-node-name-entry').val();
+          var title = $('#new-node-title-entry').val();
+          var txt = $('#new-node-content-entry').val();
+          /* NOTE: all input-element refresh is performed by CreateNode */
+          $.fn.planrRepoBrowserCreateNode(loc, name, ctype, title, txt );
+          $(this).dialog('close');
+        }, icons: { primary: 'ui-icon-check' } }
+      ]
+    });
+
+    /* new-node dialog helper functions */
+    $.fn.planrRepoBrowserCreateDocumentDialog = function(loc) {
+      var dlg_title = "#{t.repo.new_node.dialog_title}: #{t.doc.document}";
+      if (loc === null || loc === '') {
+        loc = "#{@current_repo_path}";
+      }
+      $.fn.planrRepoBrowserCreateNodeDialog(loc, 'document', dlg_title );
+    };
+    $.fn.planrRepoBrowserCreateNoteDialog = function(loc) {
+      var dlg_title = "#{t.repo.new_node.dialog_title}: #{t.doc.note}";
+      if (loc === null || loc === '') {
+        loc = "#{@current_repo_path}";
+      }
+      $.fn.planrRepoBrowserCreateNodeDialog(loc, 'note', dlg_title );
+    };
+    $.fn.planrRepoBrowserCreateTableDialog = function(loc) {
+      var dlg_title = "#{t.repo.new_node.dialog_title}: #{t.doc.table}";
+      if (loc === null || loc === '') {
+        loc = "#{@current_repo_path}";
+      }
+      $.fn.planrRepoBrowserCreateNodeDialog(loc, 'table', dlg_title );
+    };
+    $.fn.planrRepoBrowserCreateDictDialog = function(loc) {
+      var dlg_title = "#{t.repo.new_node.dialog_title}: #{t.doc.dict}";
+      if (loc === null || loc === '') {
+        loc = "#{@current_repo_path}";
+      }
+      $.fn.planrRepoBrowserCreateNodeDialog(loc, 'dict', dlg_title );
+    };
+    $.fn.planrRepoBrowserCreateQueryDialog = function(loc) {
+      var dlg_title = "#{t.repo.new_node.dialog_title}: #{t.doc.query}";
+      if (loc === null || loc === '') {
+        loc = "#{@current_repo_path}";
+      }
+      $.fn.planrRepoBrowserCreateNodeDialog(loc, 'query', dlg_title );
+    };
+    $.fn.planrRepoBrowserCreateScriptDialog = function(loc) {
+      var dlg_title = "#{t.repo.new_node.dialog_title}: #{t.doc.script}";
+      if (loc === null || loc === '') {
+        loc = "#{@current_repo_path}";
+      }
+      $.fn.planrRepoBrowserCreateNodeDialog(loc, 'script', dlg_title );
+    };
+    $.fn.planrRepoBrowserCreateFolderDialog = function(loc) {
+      var dlg_title = "#{t.repo.new_node.dialog_title}: #{t.doc.folder}";
+      if (loc === null || loc === '') {
+        loc = "#{@current_repo_path}";
+      }
+      $.fn.planrRepoBrowserCreateNodeDialog(loc, 'folder', dlg_title );
+    };
+
+    /* message dialog */
+    $('#message-dialog').dialog({
+      autoOpen: false,
+      dialogClass: 'message',
+      draggable: true,
+      height: 'auto',
+      minWidth: 200,
+      width: 400,
+      modal: true,
+      resizable: true,
+      title: 'Warning' ,
+      buttons: [ 
+        { text: "#{t.ok}", click: function() {
+          $(this).dialog('close');
+        }, icons: { primary: 'ui-icon-check' } }
+      ]
+    });
+
+    /* confirm (OK/Cancel) */
+    $('#confim-dialog').dialog({
+      autoOpen: false,
+      dialogClass: 'confirm',
+      draggable: true,
+      height: 'auto',
+      minWidth: 200,
+      width: 400,
+      modal: true,
+      resizable: true,
+      title: 'Confirm (y/n)' ,
+      buttons: [ 
+        { text: "#{t.cancel}", click: function() { 
+          console.log('FALSE');
+          $(this).dialog('close'); 
+        }, icons: { primary: 'ui-icon-cancel' } },
+        { text: "#{t.ok}", click: function() {
+          console.log('TRUE');
+          $(this).dialog('close');
+        }, icons: { primary: 'ui-icon-check' } }
+      ]
+    });
+
+    /* input prompt (text + OK/Cancel) */
+    $('#input-prompt-dialog').dialog({
+      autoOpen: false,
+      dialogClass: 'confirm',
+      draggable: true,
+      height: 'auto',
+      minWidth: 300,
+      width: 400,
+      modal: true,
+      resizable: true,
+      title: 'Input',
+      buttons: [ 
+        { text: "#{t.cancel}", click: function() { $(this).dialog('close'); 
+        }, icons: { primary: 'ui-icon-cancel' } },
+        { text: "#{t.ok}", click: function() {
+          $(this).dialog('close');
+        }, icons: { primary: 'ui-icon-check' } }
+      ]
+    });
+
+
+    /* buttons */
+    /* document types */
+    $('#repo_new_doc_btn').button({
+      disabled: false,           // FIXME: unless no repo is open
+      icons: { primary: "ui-icon-document"},
+      label: "#{t.repo.button.new_doc}",
+      text: false              // FIXME: make a setting
+    }).click(function(){ 
+      $.fn.planrRepoBrowserCommand('add-doc', null);
+    });
+
+    $('#repo_new_note_btn').button({
+      disabled: false,           
+      icons: { primary: "ui-icon-note" } , 
+      label: "#{t.repo.button.new_note}",
+      text: false                
+    }).click(function(){ 
+      $.fn.planrRepoBrowserCommand('add-note', null);
+    });
+
+    $('#repo_new_table_btn').button({
+      disabled: false,           // FIXME: unless no repo is open
+      icons: { primary: "ui-icon-calculator" } , 
+      label: "#{t.repo.button.new_table}",
+      text: false                // FIXME: make a setting
+    }).click(function(){ 
+      $.fn.planrRepoBrowserCommand('add-table', null);
+    });
+
+    $('#repo_new_dict_btn').button({
+      disabled: false,           
+      icons: { primary: "ui-icon-calendar" } , 
+      label: "#{t.repo.button.new_dict}",
+      text: false                
+    }).click(function(){ 
+      $.fn.planrRepoBrowserCommand('add-dict', null);
+    });
+
+    $('#repo_new_query_btn').button({
+      disabled: false,           
+      icons: { primary: "ui-icon-link" } , 
+      label: "#{t.repo.button.new_query}",
+      text: false                
+    }).click(function(){ 
+      $.fn.planrRepoBrowserCommand('add-query', null);
+    });
+
+    $('#repo_new_script_btn').button({
+      disabled: false,           // FIXME: unless no repo is open
+      icons: { primary: "ui-icon-gear" } , 
+      label: "#{t.repo.button.new_script}",
+      text: false               
+    }).click(function(){ 
+      $.fn.planrRepoBrowserCommand('add-script', null);
+    });
+
+    $('#repo_new_folder_btn').button({
+      disabled: false,           // FIXME: unless no repo is open
+      icons: { primary: "ui-icon-folder-collapsed" } , 
+      label: "#{t.repo.button.new_folder}",
+      text: false               
+    }).click(function(){ 
+      $.fn.planrRepoBrowserCommand('add-folder', null);
+    });
+    $('#repo_doc_types').buttonset();
+
+    /* document actions */
+    // TODO: additional actions (run script on, etc)
+    $('#repo_doc_download_btn').button({
+      disabled: false,           // FIXME: unless no repo is open
+      icons: { primary: "ui-icon-arrowthickstop-1-s" } , 
+      label: "#{'Download Document'}", // FIXME: translate
+      label: "#{t.repo.button.download}",
+      text: false               
+    }).click(function(){ 
+      $.fn.planrRepoBrowserCommand('download', null);
+    });
+
+    $('#repo_doc_dup_btn').button({
+      disabled: false,           // FIXME: unless no repo is open
+      icons: { primary: "ui-icon-newwin" } , 
+      label: "#{t.repo.button.duplicate}",
+      text: false               
+    }).click(function(){ 
+      $.fn.planrRepoBrowserCommand('dup', null);
+    });
+
+    $('#repo_doc_del_btn').button({
+      disabled: false,           // FIXME: unless no repo is open
+      icons: { primary: "ui-icon-circle-close" } , 
+      label: "#{t.repo.button.delete}",
+      text: false               
+    }).click(function(){ 
+      $.fn.planrRepoBrowserCommand('del', null);
+    });
+    $('#repo_doc_actions').buttonset();
+
+    /* application services: */
+    $('#app_settings_btn').button({
+      disabled: false,           // FIXME: unless no repo is open
+      icons: { primary: "ui-icon-wrench" } , 
+      label: "#{t.repo.button.settings}",
+      text: false               
+    }).click(function(){ 
+      window.location = '/app/settings';
+    });
+
+    $('#app_help_btn').button({
+      disabled: false,           // FIXME: unless no repo is open
+      label: "#{t.repo.button.help}",
+      icons: { primary: "ui-icon-help" } , 
+      text: false               
+    }).click(function(){ 
+      window.location = '/app/help';
+    });
+    $('#app_services').buttonset();
+
+    /* search */
+    /* FIXME: huge font in drop-down menu
+              override renderItem to use icons? */
+    $('.repo-header .search-select').selectmenu({
+    });
+    $('.repo-header .search-button').button({
+      disabled: false,           // FIXME: unless no repo is open
+      icons: { primary: "ui-icon-search" } , 
+      label: "#{t.repo.button.search}",
+      text: false               
+    }).click(function(){ 
+      $('#repo-search-form').submit();
+    });
+
+    #{@viewers.map { |h| h[:init] }.compact.join("\n")}
+
+    /* initialize to current document */
+    $.fn.planrRepoBrowserSetDocument('#{@current_repo_path}', 
+                   '#{@current_doc ? @current_doc.node_type.to_s : "folder"}');
+  });

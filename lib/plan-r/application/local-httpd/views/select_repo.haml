@@ -1,0 +1,37 @@
+= include_css('jstree.theme.default.min.css')
+
+#file-select
+  %b Choose repo to open:
+  .fs-tree
+    %p
+      .root-name
+        = @repo_root
+    #open-fs-tree-widget
+  .empty-div
+
+  %center
+    %form#file-select-form{:action=>"/app/open",:method=>"post"}
+      %input#repo-path-input{:type=>"text", :name=>"repo_path"}
+      %input{:type=>"submit", :value=>"Select"}
+
+= include_js('jstree.min.js')
+:javascript
+  $(function(){ 
+    var fs_tree = $('#open-fs-tree-widget').jstree({
+      core: {
+        data : {
+          url: '/api/fs/tree',
+          multiple: false,
+          data: function(node) { return { id: node.id }; }
+        }
+      },
+      plugins: [ 'sort', 'wholerow' ],
+      themes: {
+        stripe: true,
+        dots: true,
+        responsive: true
+      }
+    }).on('activate_node.jstree', function (event, data) {
+      $('#repo-path-input').val(data.node.id);
+    });
+  });

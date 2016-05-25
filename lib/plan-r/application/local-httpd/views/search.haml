@@ -1,0 +1,26 @@
+%h2
+  = t.app.search.name
+%ul.search-engine-list
+- plugin_mgr.providing(:query_index).each do |p,r|
+  %li.search-engine
+    %b #{p.name}
+    - key = plugin_name_to_key(p.name)
+    %form.search{:action=>"/app/search/results", :method=>'post'}
+      %input{:type=>'hidden', :name=>'plugin', value="#{key}"}
+      %input{:type=>'text', :name=>'query'}
+      %input{:type=>'submit', :name=> "#{t.app.search.submit}"}
+    .search-index-keywords
+      %a{:href => "/app/search/keywords/#{key}"}
+        #{t.app.search.index_keywords}
+    .search-index-stats
+      %a{:href => "/app/search/stats/#{key}"}
+        #{t.app.search.index_stats}
+    .search-index-reports
+      %a{:href => "/app/search/report/#{key}"}
+        #{t.app.search.index_report}
+    .search-index-documents
+      %a{:href => "/app/search/documents/#{key}"}
+        #{t.app.search.index_docs}
+    .search-index-logs
+      %a{:href => "/app/search/log/#{key}"}
+        #{t.app.search.index_log}

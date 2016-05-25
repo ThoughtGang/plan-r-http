@@ -1,0 +1,14 @@
+!!!
+-# "flash" messages are at the top
+-if defined? flash
+  =styled_flash
+
+-# CSS class 'header' : this should be text-align:center;
+#header
+  #logo
+    %a(href='/')
+      %img(align='right' src='/images/PlanR.png' alt='Wing Attack Plan R' height=25)
+  #menubar
+    .repo-ident
+      = @repo ? @repo.name : t.repo.not_open
+  -# TODO: menu?

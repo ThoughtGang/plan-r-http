@@ -1,0 +1,64 @@
+%h2
+  = t.app.import_url.name
+
+%form{:action=>"/app/import_url",:method=>"post"}
+  %p
+    %b #{t.app.import_url.document_uri}
+    %input{:type=>"",:name=>"uri"}
+  %p
+    %b #{t.app.import_url.dest_folder}
+    -# FIXME: default location/recent locations dropdown?
+    %input{:type=>"text",:name=>"folder"}
+    %b #{t.app.import_url.dest_name}
+    -# FIXME: default location/recent locations dropdown?
+    %input{:type=>"text",:name=>"name"}
+
+  %p
+    %b #{t.app.import_url.comment}
+    %textarea{:name=>'comment', :rows => 5, :cols => 80, :wrap => 'soft'}
+
+  %p
+    %input{:type=>'checkbox', :name=>'index', :value => 1, :checked => true }
+    %i #{t.app.import_url.index}
+    %br
+    %input{:type=>'checkbox', :name=>'orphan', :value => 1, :checked => false }
+    %i #{t.app.import_url.orphan}
+    %br
+
+  %p
+    #{t.app.import_url.sync}:
+    %br
+    %input{:type=>'radio', :name=>'sync', :value => 'auto', :checked => true}
+    %i #{t.app.import_url.sync_auto}
+    %br
+    %input{:type=>'radio', :name=>'sync', :value => 'access', :checked => false}
+    %i #{t.app.import_url.sync_access}
+    %br
+    %input{:type=>'radio', :name=>'sync', :value => 'start', :checked => false}
+    %i #{t.app.import_url.sync_start}
+    %br
+    %input{:type=>'radio', :name=>'sync', :value => 'manual', :checked => false}
+    %i #{t.app.import_url.sync_manual}
+    %br
+    
+    -# append-on-sync
+    %input{:type=>'checkbox', :name=>'append', :value => 1, :checked => false }
+    %i #{t.app.import_url.append}
+    %br
+
+    %hr
+    %br
+    %input{:type=>'checkbox', :name=>'note', :value => 1, :checked => false }
+    %i #{t.app.import_url.note}
+    -# FIXME: javascript to enable/disable
+    %textarea{:name=>'note_content', :rows => 5, :cols => 80, :wrap => 'soft'}
+
+    -# TODO: cache-locally?
+    -#%input{:type=>'checkbox', :name=>'cache', :value => 1, :checked => true }
+
+    -# TODO: select plugin for datasource, mirror?
+    -#%select{:name => 'data_source'}
+    -# plugin_mgr.providing(:data_source).each do |p, r|
+      -#%option{:value => p.name}
+  %p
+    %input{:type=>"submit",:value=>"#{t.app.import_url.submit}"}

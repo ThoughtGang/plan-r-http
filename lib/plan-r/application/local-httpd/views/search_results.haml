@@ -1,0 +1,73 @@
+%h1
+  = t.app.search_results
+.search-results
+  %table#search-results-table-widget.stripe.hover.compat.row-border.nowrap
+    %thead
+      %tr
+        %th Score
+        %th Title
+        %th Plugin
+
+    - @results.each do |name, results|
+      - results.each_with_index do |hit, idx|
+        - doc = doc_mgr.doc_factory(@repo, hit.path, hit.ctype)
+        - next if (! doc)
+        %tr
+          %td.text-fixed 
+            %b #{hit.score}
+          %td.text-fixed 
+            %a{ :href => "/repo/browse/#{doc.node_type.to_s}/#{doc.path}" }
+              = doc.title
+          %td #{name}
+-# ----------------------------------------------------------------------
+= include_css('jquery.dataTables.min.css')
+= include_css('dataTables.jqueryui.min.css')
+= include_css('select.dataTables.min.css')
+= include_css('responsive.dataTables.min.css')
+= include_css('autoFill.dataTables.min.css')
+= include_js('jquery.dataTables.min.js')
+= include_js('dataTables.select.min.js')
+= include_js('dataTables.responsive.min.js')
+= include_js('dataTables.autofill.min.js')
+= include_js('dataTables.jqueryui.min.js')
+:javascript
+  $(function(){
+    var srch_table = $('#search-results-table-widget').DataTable({
+      paging: true,
+      scrollY: '400px',
+      "lengthMenu": [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
+      columnDefs: [
+        { 'targets': [1], 'className': 'title'},
+        { 'targets': '_all', 'className': 'text-fixed'},
+        { 'targets': '_all', 'className': 'dt-body-left'},
+      ],
+      "drawCallback": function ( settings ) {
+        /* highlight group, per 
+           http://datatables.net/examples/advanced_init/row_grouping.html */
+        var api = this.api();
+        var rows = api.rows( {page:'current'} ).nodes();
+        var last=null;
+ 
+        api.column(2, {page:'current'} ).data().each( function ( group, i ) {
+          if ( last !== group ) {
+            $(rows).eq( i ).before(
+              '<tr class="group"><td colspan="3">' + group + '</td></tr>'
+            );
+           last = group;
+          }
+        });
+      },
+      responsive: true,
+      order: [[0, 'desc']],
+      language: { 'emptyTable': 'No results' }
+    });
+    $('#search-results-table-widget tbody').on('click', 'tr.group', function (){
+        var currentOrder = table.order()[0];
+        if ( currentOrder[0] === 2 && currentOrder[1] === 'asc' ) {
+            table.order( [ 2, 'desc' ] ).draw();
+        }
+        else {
+            table.order( [ 2, 'asc' ] ).draw();
+        }
+    } );
+  });
