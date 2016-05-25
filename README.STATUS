@@ -1,0 +1,14 @@
+The local webapp UI works in regards to browsing and basic file operations
+(copy, move, delete).
+
+Viewing documents works at a basic level, but needs better plugin support.
+
+Editing documents does not cowrk.
+
+Setting properties and tags on documents works.
+
+Searching works, but needs improvement.
+
+Importing documents via URL works, but needs improvement. 
+
+Importing documents via file upload is buggy.

@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+# (c) Copyright 2016 Thoughtgang <http://www.thoughtgang.org>
+# Simple wrapper to invoke Plan-R http application
+
+require 'plan-r/application/local-httpd'
+if __FILE__ == $0
+  PlanR::HttpApplication.new(ARGV).exec
+end
